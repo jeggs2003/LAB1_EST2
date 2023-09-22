@@ -1,4 +1,8 @@
+import json
+from Controller.concatenacion import concatenacion
+from Controller.HuffmanTree import HuffmanTree
 from Model.NodoB import NodoB
+
 from Model.Persona import Persona
 
 class ArbolB:
@@ -180,12 +184,30 @@ class ArbolB:
 
         for i in range(nodo.n):
             if nodo.key[i].get_nombre() == nombre:
+                compa = nodo.key[i].get_compa()
+                encrip = nodo.key[i].get_enc()
+                desencriptados =[]
+                huf_trees = [HuffmanTree(compa[i]) for i in range(len(compa))]
+                for j in range(len(compa)):
+                    decoded_text = huf_trees[j].binary_to_text_huffman(encrip[j])
+                    desencriptados.append(decoded_text)
+
                 print("---------------------------------------------------------")
-                print('{"name":', '"', nodo.key[i].get_nombre(), '",', '"', 'dpi":', '"', nodo.key[i].get_dpi(), '",',
-                      '"', 'dateBirth":', '"', nodo.key[i].get_fecha(), '",', '"', 'address":', '"',
-                      nodo.key[i].get_direccion(), '"}')
+                nodo.key[i].set_des(desencriptados)
+                data = []
 
+                item = {
+                    "name": nodo.key[i].get_nombre(),
+                    "dpi": nodo.key[i].get_dpi(),
+                    "dateBirth": nodo.key[i].get_fecha(),
+                    "address": nodo.key[i].get_direccion(),
+                    "Desencriptados": nodo.key[i].get_des()
+                }
+                data.append(item)
 
+                json_data = json.dumps(data, indent=5)
+                print(json_data)
+                print("---------------------------------------------------------")
         if not nodo.leaf:
             # Si no es una hoja, busca en los hijos recursivamente
             for i in range(nodo.n + 1):
@@ -195,7 +217,49 @@ class ArbolB:
 
         return -1
 
+#Find para DPI
+    def finddpi(self, dpi):
+        return self._buscar_en_nododpi(self.root, dpi)
 
+    def _buscar_en_nododpi(self, nodo, dpi):
+        if nodo is None:
+            return -1  # Si el nodo es None, el valor no se encontró
+
+        for i in range(nodo.n):
+            if nodo.key[i].get_dpi() == dpi:
+                compa = nodo.key[i].get_compa()
+                encrip = nodo.key[i].get_enc()
+                desencriptados = []
+                huf_trees = [HuffmanTree(compa[i]) for i in range(len(compa))]
+                for j in range(len(compa)):
+                    decoded_text = huf_trees[j].binary_to_text_huffman(encrip[j])
+                    desencriptados.append(decoded_text)
+
+                print("---------------------------------------------------------")
+                nodo.key[i].set_des(desencriptados)
+                data = []
+
+                item = {
+                    "name": nodo.key[i].get_nombre(),
+                    "dpi": nodo.key[i].get_dpi(),
+                    "dateBirth": nodo.key[i].get_fecha(),
+                    "address": nodo.key[i].get_direccion(),
+                    "Desencriptados": nodo.key[i].get_des()
+                }
+                data.append(item)
+
+                json_data = json.dumps(data, indent=5)
+                print(json_data)
+                print("---------------------------------------------------------")
+
+        if not nodo.leaf:
+            # Si no es una hoja, busca en los hijos recursivamente
+            for i in range(nodo.n + 1):
+                resultado = self._buscar_en_nododpi(nodo.child[i], dpi)
+                if resultado != -1:
+                    return resultado
+
+        return -1
 
 
 
@@ -211,6 +275,7 @@ class ArbolB:
             if nodo.key[i].get_nombre() == nombre:
                 if nodo.key[i].get_dpi() == dpi:
                     nodo.key[i].set_fecha(fecha)
+                    print(" REGISTRO CON NOMBRE: ", nombre, " // DPI: ", dpi, " ACTUALIZADO CORRECTAMENTE")
 
         if not nodo.leaf:
             # Si no es una hoja, busca en los hijos recursivamente
@@ -233,7 +298,7 @@ class ArbolB:
             if nodo.key[i].get_nombre() == nombre:
                 if nodo.key[i].get_dpi() == dpi:
                     nodo.key[i].set_direccion(adress)
-
+                    print(" REGISTRO CON NOMBRE: ", nombre, " // DPI: ", dpi, " ACTUALIZADO CORRECTAMENTE")
         if not nodo.leaf:
             # Si no es una hoja, busca en los hijos recursivamente
             for i in range(nodo.n + 1):
@@ -252,7 +317,7 @@ class ArbolB:
             # Si la eliminación tuvo éxito, actualiza la raíz si es necesario
             if nueva_raiz is not None:
                 self.root = nueva_raiz
-            print("Persona eliminada exitosamente.")
+            print(" REGISTRO CON NOMBRE: ", nombre, " // DPI: ", dpi, " ELIMINADO CORRECTAMENTE")
         else:
             print("No se encontró la persona con el nombre y DPI especificados.")
 
